@@ -929,14 +929,21 @@ class NotificationService(
 
         # Issue #262: summary_only 时仅输出摘要，跳过个股详情
         if self._report_summary_only:
-            report_lines.extend([f"## 📊 {labels['summary_heading']}", ""])
+            stock_col = "Stock" if report_language == "en" else ("종목" if report_language == "ko" else "股票标的")
+            report_lines.extend([
+                f"## 📊 {labels['summary_heading']}",
+                "",
+                f"| {stock_col} | {labels['action_advice_label']} | {labels['score_label']} | {labels['trend_label']} |",
+                "| :--- | :---: | :---: | :--- |",
+            ])
             for r in sorted_results:
                 signal_text, emoji, _ = self._get_signal_level(r)
+                display_name = self._get_display_name(r, report_language)
                 report_lines.append(
-                    f"{emoji} **{self._get_display_name(r, report_language)}({r.code})**: "
-                    f"{signal_text} | "
-                    f"{labels['score_label']} {r.sentiment_score} | "
-                    f"{localize_trend_prediction(r.trend_prediction, report_language)}"
+                    f"| {emoji} **{display_name}** ({r.code}) | "
+                    f"**{signal_text}** | "
+                    f"**{r.sentiment_score}** | "
+                    f"{localize_trend_prediction(r.trend_prediction, report_language)} |"
                 )
         else:
             report_lines.extend([f"## 📈 {labels['report_title']}", ""])
@@ -1290,18 +1297,21 @@ class NotificationService(
 
         # === 新增：分析结果摘要 (Issue #112) ===
         if results:
+            stock_col = "Stock" if report_language == "en" else ("종목" if report_language == "ko" else "股票标的")
             report_lines.extend([
                 f"## 📊 {labels['summary_heading']}",
                 "",
+                f"| {stock_col} | {labels['action_advice_label']} | {labels['score_label']} | {labels['trend_label']} |",
+                "| :--- | :---: | :---: | :--- |",
             ])
             for r in sorted_results:
                 signal_text, signal_emoji, _ = self._get_signal_level(r)
                 display_name = self._get_display_name(r, report_language)
                 report_lines.append(
-                    f"{signal_emoji} **{display_name}({r.code})**: "
-                    f"{signal_text} | "
-                    f"{labels['score_label']} {r.sentiment_score} | "
-                    f"{localize_trend_prediction(r.trend_prediction, report_language)}"
+                    f"| {signal_emoji} **{display_name}** ({r.code}) | "
+                    f"**{signal_text}** | "
+                    f"**{r.sentiment_score}** | "
+                    f"{localize_trend_prediction(r.trend_prediction, report_language)} |"
                 )
             report_lines.extend([
                 "",
