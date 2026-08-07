@@ -517,6 +517,26 @@ jobs:
             python main.py $FORCE_RUN_ARG
           fi
       
+      - name: 准备最新报告用于发布
+        if: always()
+        run: |
+          mkdir -p reports
+          LATEST_REPORT=$(ls -t reports/*.md 2>/dev/null | head -n 1)
+          if [ -n "$LATEST_REPORT" ]; then
+            cp "$LATEST_REPORT" reports/latest.md
+            echo "✅ 成功复制最新报告到 reports/latest.md"
+          else
+            echo "⚠️ 未找到任何生成的 markdown 报告"
+          fi
+
+      - name: 自动提交报告到仓库
+        if: always()
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "📝 Auto-commit daily stock analysis reports"
+          file_pattern: "reports/*.md"
+          branch: main
+
       - name: 上传分析报告
         uses: actions/upload-artifact@v6
         if: always()
