@@ -535,7 +535,7 @@ jobs:
         with:
           commit_message: "📝 Auto-commit daily stock analysis reports"
           file_pattern: "reports/*.md"
-          branch: main
+          branch: tianchengc
 
       - name: 上传分析报告
         uses: actions/upload-artifact@v6
